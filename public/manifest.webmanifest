@@ -1,0 +1,32 @@
+{
+  "name": "Audiobook & Leitor Universal",
+  "short_name": "Audiobook",
+  "description": "Leitor e Narrador Universal de Documentos PDF, DOCX, ePub e Texto",
+  "start_url": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#faf5ea",
+  "theme_color": "#d97706",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ]
+}

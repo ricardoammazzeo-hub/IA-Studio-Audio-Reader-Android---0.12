@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Audiobook & Leitor Universal",
+  "short_name": "AudiobookNarrator",
+  "version": "1.0.0",
+  "description": "Leitor e conversor de áudio para PDFs, Word (.docx), ePubs e páginas web com suporte a Vozes Naturais do Edge e IA.",
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "action": {
+    "default_title": "Abrir Audiobook em Janela Completa",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "Abrir Audiobook & Leitor Universal em Janela Completa"
+    }
+  }
+}

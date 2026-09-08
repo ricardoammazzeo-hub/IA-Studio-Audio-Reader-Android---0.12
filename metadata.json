@@ -1,0 +1,8 @@
+{
+  "name": "Remix IA Studio-Audio reader (android)- 0.12.4",
+  "description": "Conversor e reprodutor de Audiobook integral da obra \u0027Mito e Pensamento entre os Gregos\u0027 de Jean-Pierre Vernant, com narração em áudio, sincronização de texto e reprodução por partes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
