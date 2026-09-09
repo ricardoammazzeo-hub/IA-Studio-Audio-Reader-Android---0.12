@@ -1317,17 +1317,17 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
       {isTranslationBarOpen ? (
         <div
           id="reader-translation-bar"
-          className="mb-8 p-4 rounded-2xl bg-amber-500/10 dark:bg-slate-800/90 border border-amber-500/25 dark:border-slate-700 backdrop-blur-md shadow-lg space-y-3 animate-in fade-in slide-in-from-top-2 duration-200 sticky top-16 z-30"
+          className="mb-8 p-3 sm:p-4 w-full rounded-2xl bg-amber-500/10 dark:bg-slate-800/90 border border-amber-500/25 dark:border-slate-700 backdrop-blur-md shadow-lg space-y-3 animate-in fade-in slide-in-from-top-2 duration-200 sticky top-[100px] z-30"
         >
           {/* Header Row: Title & Prominent Recolher Button */}
           <div className="flex items-center justify-between gap-3 border-b border-black/10 dark:border-white/10 pb-2.5">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-600/20 text-amber-900 dark:text-amber-300 text-xs font-extrabold">
-                <Globe2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <div className="flex w-max items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-600/20 text-amber-900 dark:text-amber-300 text-xs font-extrabold">
+                <Globe2 className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
                 <span>Tradução Sob Demanda</span>
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
-                Tradução por página ou contínua para {targetLang.toUpperCase()}
+              <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400">
+                Tradução contínua para {targetLang.toUpperCase()}
               </span>
             </div>
 
@@ -1344,7 +1344,7 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
           </div>
 
           {/* Controls Row */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-3">
             {/* Quick Language Selector with Asian & European Languages */}
             <div className="flex items-center gap-1 flex-wrap">
               <span className="text-xs font-semibold opacity-75 mr-1">Idioma:</span>
@@ -1385,7 +1385,7 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
                 className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Traduzir Página Atual</span>
+                <span className="whitespace-nowrap">Traduzir Página Atual</span>
               </button>
 
               {/* SIDE-BY-SIDE (LADO A LADO) TOGGLE */}
@@ -1402,8 +1402,8 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
                 }`}
                 title="Exibir texto original e tradução lado a lado em blocos sincronizados"
               >
-                <Columns className="w-3.5 h-3.5" />
-                <span>{isSideBySide ? 'Lado a Lado (Ativo)' : 'Lado a Lado'}</span>
+                <Columns className="w-3.5 h-3.5 shrink-0" />
+                <span className="whitespace-nowrap">{isSideBySide ? 'Lado a Lado (Ativo)' : 'Lado a Lado'}</span>
               </button>
 
               {/* Toggle between Original and Translated */}

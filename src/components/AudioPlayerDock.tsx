@@ -266,20 +266,20 @@ export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
         </div>
 
         {/* Center: Playback Controls - Centered and Fixed */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 shrink-0">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-4 shrink-0">
           <button
             onClick={onPrevSection}
             disabled={!hasPrevSection}
             title="Página / Seção Anterior"
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            className="p-1.5 sm:p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
           <button
             onClick={narrator.skipBackward}
             title="Parágrafo Anterior"
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition"
+            className="hidden sm:block p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -289,21 +289,21 @@ export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
             onClick={narrator.togglePlay}
             disabled={narrator.isLoadingAudio}
             title={narrator.isPlaying ? 'Pausar Áudio' : 'Ouvir / Emitir Leitura'}
-            className="w-12 h-12 rounded-full bg-amber-700 hover:bg-amber-800 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-amber-700 hover:bg-amber-800 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition"
           >
             {narrator.isLoadingAudio ? (
-              <Loader2 className="w-6 h-6 animate-spin text-amber-200" />
+              <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-amber-200" />
             ) : narrator.isPlaying ? (
-              <Pause className="w-6 h-6 fill-current" />
+              <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-current" />
             ) : (
-              <Play className="w-6 h-6 fill-current ml-0.5" />
+              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current ml-0.5" />
             )}
           </button>
 
           <button
             onClick={narrator.skipForward}
             title="Próximo Parágrafo"
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition"
+            className="hidden sm:block p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition"
           >
             <RotateCw className="w-4 h-4" />
           </button>
@@ -312,9 +312,9 @@ export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
             onClick={onNextSection}
             disabled={!hasNextSection}
             title="Próxima Página / Seção"
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            className="p-1.5 sm:p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
@@ -354,7 +354,7 @@ export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
             onClick={onOpenExportModal || narrator.downloadCurrentSectionAudio}
             disabled={narrator.isDownloading}
             title="Exportar Texto ou Narração"
-            className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 border border-transparent hover:border-black/10 dark:hover:border-white/10 transition text-xs flex items-center gap-1 font-medium"
+            className="hidden sm:flex p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 border border-transparent hover:border-black/10 dark:hover:border-white/10 transition text-xs items-center gap-1 font-medium"
           >
             <Download className="w-4 h-4 text-amber-600" />
             <span className="hidden lg:inline">Exportar</span>

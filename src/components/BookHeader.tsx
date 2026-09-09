@@ -195,9 +195,9 @@ export const BookHeader: React.FC<BookHeaderProps> = ({
   return (
     <header
       id="audiobook-header"
-      className={`sticky top-0 z-30 border-b backdrop-blur-md transition-colors duration-300 ${themeHeaderClasses}`}
+      className={`sticky top-0 z-50 border-b backdrop-blur-md transition-colors duration-300 ${themeHeaderClasses} w-full`}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2 flex items-center justify-between gap-2.5 flex-wrap sm:flex-nowrap">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         {/* Left Toolbar: Library, Upload, Search, Annotations, Calibrate, Export */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap">
           {/* Library Button */}
@@ -294,9 +294,9 @@ export const BookHeader: React.FC<BookHeaderProps> = ({
         </div>
 
         {/* Right Controls: Translation, Screen Size/Adjust, Auto-Scroll, Fullscreen, App, Theme, Reset */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap justify-start sm:justify-end">
           {/* Translation Dropdown Menu */}
-          <div ref={translationMenuRef} className="relative">
+          <div ref={translationMenuRef} className="static sm:relative">
             <button
               type="button"
               onClick={() => {
@@ -329,7 +329,7 @@ export const BookHeader: React.FC<BookHeaderProps> = ({
             {/* Translation Dropdown Popover */}
             {showTranslationMenu && (
               <div
-                className={`absolute right-0 top-full mt-2 w-72 sm:w-80 p-4 rounded-2xl shadow-2xl z-50 border animate-in fade-in zoom-in-95 duration-150 space-y-3.5 ${dropdownBgClasses}`}
+                className={`absolute top-full mt-2 left-2 right-2 max-w-sm mx-auto sm:left-auto sm:right-0 sm:w-80 sm:max-w-none p-3 sm:p-4 rounded-2xl shadow-2xl z-50 border animate-in fade-in zoom-in-95 duration-150 space-y-3.5 ${dropdownBgClasses}`}
               >
                 <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-2">
                   <div className="flex items-center gap-2 font-bold text-xs">
@@ -472,7 +472,7 @@ export const BookHeader: React.FC<BookHeaderProps> = ({
           </div>
 
           {/* Screen Size, Reader Width & Display Adjustments Dropdown (Top Right) */}
-          <div ref={screenAdjustRef} className="relative">
+          <div ref={screenAdjustRef} className="static sm:relative">
             <button
               type="button"
               onClick={() => {
@@ -494,7 +494,7 @@ export const BookHeader: React.FC<BookHeaderProps> = ({
             {/* Screen Adjust Dropdown Menu */}
             {showScreenAdjustMenu && (
               <div
-                className={`absolute right-0 top-full mt-2 w-72 sm:w-80 p-4 rounded-2xl shadow-2xl z-50 border animate-in fade-in zoom-in-95 duration-150 space-y-3.5 ${dropdownBgClasses}`}
+                className={`absolute top-full mt-2 left-2 right-2 max-w-sm mx-auto sm:left-auto sm:right-0 sm:w-80 sm:max-w-none p-4 rounded-2xl shadow-2xl z-50 border animate-in fade-in zoom-in-95 duration-150 space-y-3.5 ${dropdownBgClasses}`}
               >
                 <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-2">
                   <div className="flex items-center gap-2 font-bold text-xs">
@@ -693,7 +693,7 @@ export const BookHeader: React.FC<BookHeaderProps> = ({
 
           {/* Reset App & Clean Settings Button (Top Right corner) */}
           {onResetAllAppData && (
-            <div ref={resetRef} className="relative">
+            <div ref={resetRef} className="static sm:relative">
               <button
                 onClick={() => {
                   setShowResetConfirm((prev) => !prev);
@@ -709,7 +709,7 @@ export const BookHeader: React.FC<BookHeaderProps> = ({
               {showResetConfirm && (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className={`absolute right-0 top-full mt-2 w-72 p-4 rounded-2xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-3 border ${dropdownBgClasses}`}
+                  className={`absolute top-full right-2 max-w-[280px] sm:top-full sm:right-0 sm:mt-2 sm:w-72 p-4 rounded-2xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-3 border ${dropdownBgClasses}`}
                 >
                   <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold text-xs">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
