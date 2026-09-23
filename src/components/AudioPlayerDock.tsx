@@ -23,6 +23,9 @@ import { SectionItem, ReadingTheme } from '../types';
 interface AudioPlayerDockProps {
   narrator: UseAudiobookNarratorReturn;
   section: SectionItem;
+  totalSections?: number;
+  activeSectionIndex?: number;
+  allSections?: SectionItem[];
   onPrevSection: () => void;
   onNextSection: () => void;
   hasPrevSection: boolean;
@@ -34,6 +37,9 @@ interface AudioPlayerDockProps {
 export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
   narrator,
   section,
+  totalSections,
+  activeSectionIndex,
+  allSections,
   onPrevSection,
   onNextSection,
   hasPrevSection,
@@ -42,6 +48,66 @@ export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
   theme,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const [kindleMode, setKindleMode] = useState<number>(0);
+
+  // Kindle-style reading progress metrics
+  const totalSectionsCount = totalSections || allSections?.length || 1;
+  const currentSecIdx = activeSectionIndex ?? (section.chapterNumber ? Math.max(0, section.chapterNumber - 1) : 0);
+
+  // Calculate total book paragraphs and completed paragraphs
+  const totalBookParagraphs = allSections && allSections.length > 0
+    ? allSections.reduce((acc, s) => acc + s.paragraphs.length, 0)
+    : Math.max(1, section.paragraphs.length);
+
+  const completedParagraphs = allSections && allSections.length > 0
+    ? allSections.slice(0, currentSecIdx).reduce((acc, s) => acc + s.paragraphs.length, 0) +
+      narrator.currentParagraphIndex +
+      (narrator.isPlaying ? 0.5 : 0)
+    : narrator.currentParagraphIndex + (narrator.isPlaying ? 0.5 : 0);
+
+  const bookProgressPercent = totalBookParagraphs > 0
+    ? Math.min(100, Math.max(0, Math.round((completedParagraphs / totalBookParagraphs) * 100)))
+    : 0;
+
+  // Reading time estimates (based on 140 WPM adjusted for narrator speed)
+  const effectiveWpm = 140 * Math.max(0.5, narrator.speed);
+
+  const remainingWordsSection = section.paragraphs
+    .slice(narrator.currentParagraphIndex)
+    .reduce((acc, p) => acc + (p.text ? p.text.split(/\s+/).length : 0), 0);
+  const minutesLeftSection = Math.max(1, Math.round(remainingWordsSection / effectiveWpm));
+
+  const remainingWordsBook = allSections && allSections.length > 0
+    ? allSections
+        .slice(currentSecIdx + 1)
+        .reduce(
+          (acc, s) => acc + s.paragraphs.reduce((pacc, p) => pacc + (p.text ? p.text.split(/\s+/).length : 0), 0),
+          remainingWordsSection
+        )
+    : remainingWordsSection;
+
+  const minutesLeftBook = Math.max(1, Math.round(remainingWordsBook / effectiveWpm));
+  const hoursLeftBook = Math.floor(minutesLeftBook / 60);
+  const minsRemainderBook = minutesLeftBook % 60;
+  const timeFormattedBook = hoursLeftBook > 0 ? `${hoursLeftBook}h ${minsRemainderBook}m` : `${minsRemainderBook} min`;
+
+  const cycleKindleMode = () => {
+    setKindleMode((prev) => (prev + 1) % 4);
+  };
+
+  const getKindleLabel = () => {
+    switch (kindleMode) {
+      case 0:
+        return `${bookProgressPercent}% do livro`;
+      case 1:
+        return `${minutesLeftSection} min no cap.`;
+      case 2:
+        return `${timeFormattedBook} no livro`;
+      case 3:
+      default:
+        return `Pág. ${currentSecIdx + 1} de ${totalSectionsCount}`;
+    }
+  };
 
   const speedOptions = [0.75, 1.0, 1.25, 1.5, 2.0];
 
@@ -237,10 +303,19 @@ export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
         </div>
       )}
 
-      {/* Progress Track Bar */}
-      <div className="w-full bg-amber-900/10 dark:bg-slate-800 h-1.5 cursor-pointer relative group">
+      {/* Progress Track Bar (Dual: Book Progress & Section Progress) */}
+      <div 
+        className="w-full bg-amber-900/10 dark:bg-slate-800 h-1.5 cursor-pointer relative group"
+        title={`Página: ${Math.round(narrator.progressPercent)}% • Livro completo: ${bookProgressPercent}%`}
+      >
+        {/* Total Book Progress subtle underlay */}
         <div
-          className="h-full bg-gradient-to-r from-amber-600 to-amber-500 relative transition-all duration-300"
+          className="h-full bg-amber-500/20 dark:bg-amber-400/20 absolute top-0 left-0 transition-all duration-500"
+          style={{ width: `${bookProgressPercent}%` }}
+        />
+        {/* Current Section Progress */}
+        <div
+          className="h-full bg-gradient-to-r from-amber-600 to-amber-500 relative transition-all duration-300 z-10"
           style={{ width: `${narrator.progressPercent}%` }}
         >
           <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-amber-600 dark:bg-amber-400 rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -249,18 +324,29 @@ export const AudioPlayerDock: React.FC<AudioPlayerDockProps> = ({
 
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-2 sm:gap-4">
         {/* Left Section / Page Info */}
-        <div className="flex items-center gap-3 min-w-0 flex-1 max-w-xs sm:max-w-sm">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 max-w-xs sm:max-w-sm">
           <div className="w-10 h-10 rounded-lg bg-amber-700/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-serif font-bold text-xs shrink-0 border border-amber-600/20">
             {section.chapterNumber === 0 ? 'Intro' : `Pág.${section.chapterNumber}`}
           </div>
-          <div className="truncate">
+          <div className="truncate min-w-0 flex-1">
             <div className="font-serif font-semibold text-sm truncate" title={section.partTitle}>
               {section.partTitle}
             </div>
-            <div className="text-xs opacity-75 flex items-center gap-2">
-              <span>{section.pageRange ? `Páginas ${section.pageRange}` : 'Página'}</span>
-              <span>•</span>
-              <span>Parágrafo {narrator.currentParagraphIndex + 1} de {section.paragraphs.length}</span>
+            <div className="text-xs opacity-80 flex items-center gap-2 flex-wrap">
+              {/* Interactive Kindle-Style Percentage & Time Left Pill */}
+              <button
+                type="button"
+                onClick={cycleKindleMode}
+                title="Clique para alternar métrica estilo Kindle: % do livro, tempo no capítulo, tempo no livro ou página"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-900 dark:text-amber-200 text-[10px] font-bold tracking-tight transition cursor-pointer select-none shrink-0"
+              >
+                <Bookmark className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400 fill-current" />
+                <span>{getKindleLabel()}</span>
+              </button>
+              <span className="hidden sm:inline opacity-50">•</span>
+              <span className="hidden sm:inline text-[11px] opacity-75">
+                § {narrator.currentParagraphIndex + 1}/{section.paragraphs.length}
+              </span>
             </div>
           </div>
         </div>

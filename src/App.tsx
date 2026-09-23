@@ -456,6 +456,9 @@ export default function App() {
       <AudioPlayerDock
         narrator={narrator}
         section={currentSection}
+        totalSections={activeBook.sections.length}
+        activeSectionIndex={activeSectionIndex}
+        allSections={activeBook.sections}
         onPrevSection={handlePrevSection}
         onNextSection={handleNextSection}
         hasPrevSection={hasPrevSection}

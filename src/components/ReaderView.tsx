@@ -7,6 +7,7 @@ import {
   Quote,
   Edit3,
   FileText,
+  Eye,
   EyeOff,
   Globe2,
   Sparkles,
@@ -235,6 +236,7 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
     }
   };
   const [quickEditMode, setQuickEditMode] = useState<boolean>(false);
+  const [hideOmittedBlocks, setHideOmittedBlocks] = useState<boolean>(true);
   const [quickToast, setQuickToast] = useState<string | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -1467,6 +1469,88 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
         </div>
       ) : null}
 
+      {/* Kindle-Style Reading Progress & Block Display Controller */}
+      {(() => {
+        const totalBookParagraphs = sections.reduce((acc, s) => acc + s.paragraphs.length, 0);
+        const completedBookParagraphs =
+          sections.slice(0, activeSectionIndex).reduce((acc, s) => acc + s.paragraphs.length, 0) +
+          currentParagraphIndex +
+          (isPlaying ? 0.5 : 0);
+        const overallBookPercent = totalBookParagraphs > 0
+          ? Math.min(100, Math.max(0, Math.round((completedBookParagraphs / totalBookParagraphs) * 100)))
+          : 0;
+
+        return (
+          <div className="mb-6 p-2.5 sm:p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs select-none">
+            {/* Left: Overall Book Progress */}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-600/30 text-amber-950 dark:text-amber-200 font-bold text-[11px] shrink-0">
+                <Bookmark className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 fill-current" />
+                <span>{overallBookPercent}% lido</span>
+              </div>
+              <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium truncate">
+                <span>Pág. {activeSectionIndex + 1} de {sections.length}</span>
+                <span className="opacity-40 mx-1.5">•</span>
+                <span className="opacity-75">{totalBookParagraphs} blocos no total</span>
+              </div>
+            </div>
+
+            {/* Right: Clean Reading Mode & Quick Edit Mode Switches */}
+            <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+              {/* Toggle Clean Reading / Hide Omitted Blocks */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundEffects.toggle(!hideOmittedBlocks);
+                  setHideOmittedBlocks((prev) => !prev);
+                  triggerQuickToast(
+                    !hideOmittedBlocks
+                      ? '📖 Modo Leitura Limpa ativado (blocos omitidos recolhidos)'
+                      : '👁️ Blocos omitidos visíveis'
+                  );
+                }}
+                title={
+                  hideOmittedBlocks
+                    ? 'Exibir blocos omitidos por completo'
+                    : 'Recolher blocos omitidos para leitura sem distrações'
+                }
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-[11px] font-bold transition cursor-pointer ${
+                  hideOmittedBlocks
+                    ? 'bg-amber-600/10 text-amber-900 dark:text-amber-300 border-amber-600/25'
+                    : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 opacity-75 hover:opacity-100'
+                }`}
+              >
+                {hideOmittedBlocks ? <EyeOff className="w-3 h-3 text-amber-600" /> : <Eye className="w-3 h-3 text-slate-500" />}
+                <span>{hideOmittedBlocks ? 'Leitura Limpa' : 'Exibir Omitidos'}</span>
+              </button>
+
+              {/* Toggle Quick Block Classification Mode */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundEffects.click();
+                  setQuickEditMode((prev) => !prev);
+                  triggerQuickToast(
+                    !quickEditMode
+                      ? '✏️ Modo de Ajuste de Blocos ativado (etiquetas e ferramentas visíveis)'
+                      : '🔒 Modo Leitura normal ativado'
+                  );
+                }}
+                title="Ativar barra de edição rápida em todos os parágrafos (Nota, Citação, Título, Omitir)"
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-[11px] font-bold transition cursor-pointer ${
+                  quickEditMode
+                    ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                    : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10'
+                }`}
+              >
+                <Edit3 className="w-3 h-3" />
+                <span>{quickEditMode ? 'Ajustes Ativos' : 'Ajustar Blocos'}</span>
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* CONTINUOUS / INFINITE STREAM OF PAGES & SECTIONS */}
       <div className="space-y-12">
         {sections.map((sec, secIndex) => {
@@ -1587,16 +1671,35 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
 
                       {/* Side-by-Side View vs Single View */}
                       {isSideBySide && hasTranslations ? (
-                        <div
-                          ref={isActive ? activeParagraphRef : null}
-                          id={`paragraph-${secIndex}-${pIndex}`}
-                            data-is-translating={translatingSectionIndices.includes(secIndex) ? "true" : undefined}
-                          className={`group relative grid grid-cols-1 md:grid-cols-2 gap-4 p-3.5 sm:p-4 rounded-2xl border transition-all ${
-                            isActive
-                              ? 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500 shadow-md ring-2 ring-amber-500/20'
-                              : 'bg-black/[0.01] dark:bg-white/[0.01] border-black/5 dark:border-white/5 hover:border-amber-500/30'
-                          } ${paragraph.isNonFree ? 'opacity-60 border-dashed' : ''}`}
-                        >
+                        paragraph.isNonFree && hideOmittedBlocks && !quickEditMode ? (
+                          <div
+                            key={paragraph.id}
+                            onClick={() => {
+                              setQuickEditMode(true);
+                              triggerQuickToast('✏️ Modo de Ajuste de Blocos ativado');
+                            }}
+                            title="Bloco omitido da leitura. Clique para ativar modo de ajuste de blocos."
+                            className="my-1.5 py-1 px-3 rounded-lg border border-dashed border-slate-300/60 dark:border-slate-700/60 bg-slate-500/5 text-slate-500 dark:text-slate-400 text-[11px] flex items-center justify-between opacity-50 hover:opacity-100 transition-all cursor-pointer select-none"
+                          >
+                            <span className="truncate italic flex items-center gap-1.5 max-w-md">
+                              <EyeOff className="w-3 h-3 shrink-0 text-slate-400" />
+                              <span className="truncate">{displayedText.slice(0, 70)}...</span>
+                            </span>
+                            <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 shrink-0 ml-2">
+                              Omitido (Clique p/ Ajustar)
+                            </span>
+                          </div>
+                        ) : (
+                          <div
+                            ref={isActive ? activeParagraphRef : null}
+                            id={`paragraph-${secIndex}-${pIndex}`}
+                              data-is-translating={translatingSectionIndices.includes(secIndex) ? "true" : undefined}
+                            className={`group relative grid grid-cols-1 md:grid-cols-2 gap-4 p-3.5 sm:p-4 rounded-2xl border transition-all ${
+                              isActive
+                                ? 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500 shadow-md ring-2 ring-amber-500/20'
+                                : 'bg-black/[0.01] dark:bg-white/[0.01] border-black/5 dark:border-white/5 hover:border-amber-500/30'
+                            } ${paragraph.isNonFree ? 'opacity-60 border-dashed' : ''}`}
+                          >
                           {/* Quick Inline Adjustment Bar (Left) */}
                           {renderQuickAdjustBar(secIndex, paragraph, pIndex, pType)}
 
@@ -1678,45 +1781,65 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
                             {renderParagraphAnnotations(paragraph.id, secIndex)}
                           </div>
                         </div>
-                      ) : (
+                      )) : (
                         /* Standard Single Column Render */
                         paragraph.isNonFree ? (
-                          <div
-                            ref={isActive ? activeParagraphRef : null}
-                            id={`paragraph-${secIndex}-${pIndex}`}
-                            data-is-translating={translatingSectionIndices.includes(secIndex) ? "true" : undefined}
-                            style={{
-                              fontSize: `${Math.max(12, fontSize - 3)}px`,
-                              lineHeight: 1.6,
-                            }}
-                            className="group relative p-3.5 rounded-xl border border-dashed border-slate-400/40 dark:border-slate-600/40 bg-slate-500/5 opacity-60 hover:opacity-90 transition pt-5"
-                          >
-                            {renderQuickAdjustBar(secIndex, paragraph, pIndex, pType)}
-                            {renderParagraphTopRightActions(secIndex, paragraph, pIndex)}
-
+                          hideOmittedBlocks && !quickEditMode ? (
                             <div
-                              aria-hidden="true"
-                              data-no-speech="true"
-                              className="flex items-center gap-2 mb-1 select-none"
+                              key={paragraph.id}
+                              onClick={() => {
+                                setQuickEditMode(true);
+                                triggerQuickToast('✏️ Modo de Ajuste de Blocos ativado');
+                              }}
+                              title="Bloco omitido da leitura. Clique para ativar modo de ajuste de blocos."
+                              className="my-1.5 py-1 px-3 rounded-lg border border-dashed border-slate-300/60 dark:border-slate-700/60 bg-slate-500/5 text-slate-500 dark:text-slate-400 text-[11px] flex items-center justify-between opacity-50 hover:opacity-100 transition-all cursor-pointer select-none"
                             >
-                              <EyeOff className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                              <span className="font-sans text-[10px] uppercase font-bold tracking-wide text-slate-600 dark:text-slate-400">
-                                Bloco Marcado como Não-Livre (Ignorado na Narração)
+                              <span className="truncate italic flex items-center gap-1.5 max-w-md">
+                                <EyeOff className="w-3 h-3 shrink-0 text-slate-400" />
+                                <span className="truncate">{displayedText.slice(0, 70)}...</span>
+                              </span>
+                              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 shrink-0 ml-2">
+                                Omitido (Clique p/ Ajustar)
                               </span>
                             </div>
+                          ) : (
+                            <div
+                              ref={isActive ? activeParagraphRef : null}
+                              id={`paragraph-${secIndex}-${pIndex}`}
+                              data-is-translating={translatingSectionIndices.includes(secIndex) ? "true" : undefined}
+                              style={{
+                                fontSize: `${Math.max(12, fontSize - 3)}px`,
+                                lineHeight: 1.6,
+                              }}
+                              className="group relative p-3.5 rounded-xl border border-dashed border-slate-400/40 dark:border-slate-600/40 bg-slate-500/5 opacity-75 hover:opacity-100 transition pt-5"
+                            >
+                              {renderQuickAdjustBar(secIndex, paragraph, pIndex, pType)}
+                              {renderParagraphTopRightActions(secIndex, paragraph, pIndex)}
 
-                            {isEditing ? (
-                              renderInlineEditor(secIndex, paragraph.id)
-                            ) : (
-                              <p
-                                data-reader-text="true"
-                                className="font-serif text-justify italic opacity-80"
+                              <div
+                                aria-hidden="true"
+                                data-no-speech="true"
+                                className="flex items-center gap-2 mb-1 select-none"
                               >
-                                {displayedText}
-                              </p>
-                            )}
-                            {renderParagraphAnnotations(paragraph.id, secIndex)}
-                          </div>
+                                <EyeOff className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                <span className="font-sans text-[10px] uppercase font-bold tracking-wide text-slate-600 dark:text-slate-400">
+                                  Bloco Marcado como Não-Livre (Ignorado na Narração)
+                                </span>
+                              </div>
+
+                              {isEditing ? (
+                                renderInlineEditor(secIndex, paragraph.id)
+                              ) : (
+                                <p
+                                  data-reader-text="true"
+                                  className="font-serif text-justify italic opacity-80"
+                                >
+                                  {displayedText}
+                                </p>
+                              )}
+                              {renderParagraphAnnotations(paragraph.id, secIndex)}
+                            </div>
+                          )
                         ) : pType === 'heading' ? (
                           <div
                             ref={isActive ? activeParagraphRef : null}

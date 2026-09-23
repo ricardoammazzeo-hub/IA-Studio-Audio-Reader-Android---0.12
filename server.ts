@@ -84,7 +84,7 @@ ${sampleText.slice(0, 25000)} // Allow a larger sample
 `;
 
     const response = await generateContentWithRetry(ai, {
-          model: 'gemini-3.6-flash',
+          model: 'gemini-3.8-flash',
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           config: {
             responseMimeType: 'application/json',
@@ -165,7 +165,7 @@ ${editedSample.slice(0, 25000)}
 `;
 
     const response = await generateContentWithRetry(ai, {
-          model: 'gemini-3.6-flash',
+          model: 'gemini-3.8-flash',
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           config: {
             responseMimeType: 'application/json',
